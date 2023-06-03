@@ -1,19 +1,25 @@
 # myShell
-
 This is a simple shell program that mimics the bash, and written by C. No third-party libraries other than those provided by linux are used.
 
-In the shell, `help` commands will show all the commands that it supports.
+After compiling and running the target file, entering `help` commands will show all the commands that the shell supports.
 
 _The source code have been packaged in .tar file._
 
 ## About Makefile
-Using `make` will build the execuable file in the current dir. And all intermediate files will be built in "build" directory.
+There are some functions in the Makefile, the main is:
 
-Other different functions can be found in Makefile.
+1. The intermediate files will be built into "build/" directory (it'll cause an error if there isn't the dir, but you can automatically create the missing directory with `make new`)
+
+2. The target file will be built in the same directory as Makefile
+
+3. Use `make pack` to easily package the entire project directory into a .tar file in the current directory. The default name of the file is the name of the current directory. You can respecify the file name with `make PATH_NAME=the_name_what_you_want pack`.
+
+See the source code for more details.
 
 ## Potential Problem
 Not found yet.
 
+- - -
 
 # myShell_zh-cn
 一个简易的 shell 程序，复现了 bash 中的几条简单指令. 由 C 编写，且没有使用第三方库，linux 下的系统 C 库除外.
