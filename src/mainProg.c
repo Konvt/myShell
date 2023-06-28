@@ -38,6 +38,10 @@ int main(int argc, char **argv)
         }
     }
 
-    free(prompt);
+    /* i don't think this part is usually useful
+     * unless you're using it in an embedded system */
+    free(prompt); mgr.Destructor(&mgr);
+    /* anyways, be happy */
+
     return 0;
 }
