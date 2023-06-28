@@ -35,7 +35,7 @@ char* StrTrim(char* const str, const size_t terminus)
 void GetInput(FILE* src, char* acceptInput, int inputLimit, const char* prompt)
 {
     if (acceptInput==NULL || inputLimit==0) return;
-    char *haveTrimmed = NULL;
+    char *hadTrimmed = NULL;
 
     fflush(src);
     acceptInput[0] = '\0';
@@ -44,13 +44,13 @@ void GetInput(FILE* src, char* acceptInput, int inputLimit, const char* prompt)
             fputs(prompt, stdout);
         fgets(acceptInput, inputLimit, src);
         int len = strlen(acceptInput);
-        haveTrimmed = StrTrim(acceptInput, len+1);
-    } while (haveTrimmed[0] == '\0');
+        hadTrimmed = StrTrim(acceptInput, len+1);
+    } while (hadTrimmed[0] == '\0');
 
     /* if there are spaces at the beginning
      * some non-null characters will be stayed in the middle of the string
      * thus we need to move them to front */
-    strcpy(acceptInput, haveTrimmed);
+    strcpy(acceptInput, hadTrimmed);
     /* make sure there are not left any unwanted characters behind */
     for (int i=0; ; i++) {
         if (acceptInput[i] == '\0') {
@@ -67,15 +67,14 @@ int MatchSubstr(const char* mainstr, const char* substr, int pos)
      * not to calculate the main string length */
     if (subLen <= 2) { // substr is too short to use KMP
         char *ret = strstr(mainstr+pos, substr);
-        return ret==NULL ? -1 : (int)(ret-mainstr);
+        return ret==NULL ? FAILED : (int)(ret-mainstr);
     }
     int *next = (int*)malloc(sizeof(int)*subLen);
     /* matches string by using KMP */
 
-    int offset = 0, trace = -1;
-    next[0] = -1;
+    int offset = 0, trace = next[0] = -1;
     while (substr[offset] != '\0') {
-        if(trace==-1 || substr[offset]==substr[trace])
+        if (trace==-1 || substr[offset]==substr[trace])
             next[++offset] = ++trace;
         else trace = next[trace];
     }
@@ -97,7 +96,7 @@ int MatchSubstr(const char* mainstr, const char* substr, int pos)
 }
 
 void AdjustDir(char* wd, const char* homeWd)
-{ /* this function will set the string like 'system/home/name' to be '~/name */
+{ /* this function will set the string like 'system/home/name' to be '~/name' */
     const char sep = '/';
     int mainLen = strlen(wd), subLen = strlen(homeWd);
 

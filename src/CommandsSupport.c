@@ -182,8 +182,8 @@ int Execute(char **args, int argc)
     int fd[2], status = SUCCESS;
     if (pipe(fd) == -1)
         return FAILED;
-    /* execute may not return, which means there may not be anything in pipe */
-    /* so we need to use a non-blocking pipe */
+    /* execute may not return, which means there may not be anything in pipe *
+     * so we need to use a non-blocking pipe */
     fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL)|O_NONBLOCK);
 
     pid_t pid = fork();

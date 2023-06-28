@@ -115,5 +115,5 @@ int GetHostName(char* const name, int nameLimit, const char *prompt)
     }
 
     free(input);
-    return (hasSpace==FALSE && nameLen!=0) ? SUCCESS : FAILED;
+    return hasSpace==FALSE && nameLen!=0 ? SUCCESS : FAILED;
 }
