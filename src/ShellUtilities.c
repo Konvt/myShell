@@ -19,13 +19,13 @@ char* StrTrim(char* const str, const size_t terminus)
     /* unlimit string interception range by address */
     for (index=terminus-1; (str+index)>=str; index--) {
         if (isspace(str[index]))
-            str[index] = '\0';
-        else if (str[index] != '\0')
+            str[index] = BLANK;
+        else if (str[index] != BLANK)
             break;
     }
     for (index=0; (str+index)<(str+terminus); index++) {
         if (isspace(str[index]))
-            str[index] = '\0';
+            str[index] = BLANK;
         else break;
     }
 
@@ -38,23 +38,23 @@ void GetInput(FILE* src, char* acceptInput, int inputLimit, const char* prompt)
     char *hadTrimmed = NULL;
 
     fflush(src);
-    acceptInput[0] = '\0';
+    acceptInput[0] = BLANK;
     do {
-        if (prompt!=NULL && acceptInput[0]=='\0')
+        if (prompt!=NULL && acceptInput[0]==BLANK)
             fputs(prompt, stdout);
         fgets(acceptInput, inputLimit, src);
         int len = strlen(acceptInput);
         hadTrimmed = StrTrim(acceptInput, len+1);
-    } while (hadTrimmed[0] == '\0');
+    } while (hadTrimmed[0] == BLANK);
 
     /* if there are spaces at the beginning
-     * some non-null characters will be stayed in the middle of the string
-     * thus we need to move them to front */
+     * some non-null characters will stay in the middle of the string
+     * thus we need move them to front */
     strcpy(acceptInput, hadTrimmed);
-    /* make sure there are not left any unwanted characters behind */
+    /* make sure there are not any unwanted characters behind */
     for (int i=0; ; i++) {
-        if (acceptInput[i] == '\0') {
-            memset(acceptInput+i+1, '\0', inputLimit-i-1);
+        if (acceptInput[i] == BLANK) {
+            memset(acceptInput+i+1, BLANK, inputLimit-i-1);
             break;
         }
     }
@@ -73,24 +73,24 @@ int MatchSubstr(const char* mainstr, const char* substr, int pos)
     /* matches string by using KMP */
 
     int offset = 0, trace = next[0] = -1;
-    while (substr[offset] != '\0') {
+    while (substr[offset] != BLANK) {
         if (trace==-1 || substr[offset]==substr[trace])
             next[++offset] = ++trace;
         else trace = next[trace];
     }
 
     offset = pos, trace = 0;
-    while (mainstr[offset]!='\0' && trace<subLen) {
+    while (mainstr[offset]!=BLANK && trace<subLen) {
         if (trace==-1 || mainstr[offset]==substr[trace]) {
             /* if we match a correct string, break */
-            if (substr[trace+1] == '\0') break;
+            if (substr[trace+1] == BLANK) break;
             ++offset; ++trace;
         }
         else trace = next[trace];
     }
 
     free(next);
-    if (mainstr[offset] == '\0')
+    if (mainstr[offset] == BLANK)
         return FAILED; // substr isn't in mainstr
     return offset-subLen+1;
 }
@@ -109,17 +109,17 @@ void AdjustDir(char* wd, const char* homeWd)
             pos = offset+subLen;
             continue;
         }
-        if (wd[offset+subLen]=='\0' || wd[offset+subLen]==sep) {
+        if (wd[offset+subLen]==BLANK || wd[offset+subLen]==sep) {
             /* matched with those right structure like 'home/something' or 'system/home'
-             * then set the correct characters to '\0' */
+             * then set the correct characters to BLANK */
             for (int i=0; i<subLen; i++)
-                wd[offset+i] = '\0';
+                wd[offset+i] = BLANK;
             wd[0] = '~';
             /* move the characters behind homeWd to front */
             offset += subLen;
             strcpy(wd+1, wd+offset);
-            for (offset=mainLen-1; wd[offset]!='\0'; offset--);
-            memset(wd+offset, '\0', sizeof(char)*(mainLen-offset));
+            for (offset=mainLen-1; wd[offset]!=BLANK; offset--);
+            memset(wd+offset, BLANK, sizeof(char)*(mainLen-offset));
             /* if substr is too far back in main, some characters will be left behind
              * make sure there are no unwanted characters in the string */
             exitFlag = TRUE; 

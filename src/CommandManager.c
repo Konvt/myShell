@@ -15,14 +15,14 @@ ArgsMgr* CreateArgsMgr(ArgsMgr* const this, int readLimit)
         ThrowError("The upper limit for reading must be greater than zero");
         exit(CONSTR_ERROR);
     }
-    if (this == NULL) // always guarantees to return an object
+    if (this == NULL) // guarantees that an object will always be returned
         return CreateArgsMgr((ArgsMgr*)malloc(sizeof(ArgsMgr)), readLimit);
 
     this->_readLimit = readLimit;
     this->_commands = (char*)malloc(sizeof(char)*(readLimit+1));
-    memset(this->_commands, '\0', sizeof(char)*(readLimit+1));
+    memset(this->_commands, BLANK, sizeof(char)*(readLimit+1));
     this->_originalCmd = (char*)malloc(sizeof(char)*(readLimit+1));
-    memset(this->_originalCmd, '\0', sizeof(char)*(readLimit+1));
+    memset(this->_originalCmd, BLANK, sizeof(char)*(readLimit+1));
     this->argc = this->_commandsLen = 0;
     this->args = NULL;
 
@@ -46,8 +46,8 @@ ArgsMgr* ReadCommand(ArgsMgr* const this, FILE* src, const char* prompt)
 {
     GetInput(stdin, this->_commands, this->_readLimit, prompt);
     this->_commandsLen = strlen(this->_commands);
-    /* clear the last saved command */
-    memset(this->_originalCmd, '\0', this->_readLimit+1);
+    /* clear the last command */
+    memset(this->_originalCmd, BLANK, this->_readLimit+1);
     strcpy(this->_originalCmd, this->_commands);
 
     return this;
@@ -69,9 +69,9 @@ ArgsMgr* CommandAnalyzer(ArgsMgr* const this, const char* delims)
     /* find the token and assign their starting address to args */
     for (int i=1, backtrack=1, savedArgsNum=0; 
         i<=(this->_commandsLen) && savedArgsNum<(this->argc); i++, backtrack++) {
-        if (this->_commands[i]!='\0' && this->_commands[i-1]=='\0')
+        if (this->_commands[i]!=BLANK && this->_commands[i-1]==BLANK)
             backtrack = 0; // backtrack is used to backtrack to the head of each token
-        else if (this->_commands[i]=='\0' && this->_commands[i-1]!='\0') {
+        else if (this->_commands[i]==BLANK && this->_commands[i-1]!=BLANK) {
             this->args[savedArgsNum++] = &this->_commands[i-backtrack];
             backtrack = 0;
         }
@@ -82,7 +82,7 @@ ArgsMgr* CommandAnalyzer(ArgsMgr* const this, const char* delims)
 
 CmdType CommandProcess(ArgsMgr* const this)
 {
-    if (this->args[0]==NULL || this->args[0][0]=='\0')
+    if (this->args[0]==NULL || this->args[0][0]==BLANK)
         return nill; // if command is a line of space
     CmdType type = nill;
     int executeFlag = FAILED, pipeFlag = -1, reFlag = -1;
@@ -172,7 +172,7 @@ int PipeExecute(char** args, int argc, int pipeFlag)
             close(streamPipe[1]);
             exit(SUBPROCESS_EXIT);
         }
-        /* there will be nothing to read if we don't wait for subprocess end */
+        /* there will be nothing to be read if we don't wait for subprocess end */
         waitpid(pid[cmdNum], NULL, 0);
     }
     read(statusPipe[0], &executeFlag, sizeof(int));
@@ -230,7 +230,7 @@ int RedirectExecute(char** args, int argc, int reFlag)
 }
 
 int BuildinCmds(char** args, int argc, CmdType type)
-{ /* args isn't const-ness because const can be avoided in some ways */
+{ /* modifying args with const is not effective, this's a language defect */
     switch (type) {
     case buildinExit:
         exit(EXIT_SUCCESS);

@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     while (1) {
         /* prompt will be re-spliced only after the cwd has been updated */
         if (MatchSubstr(prompt, mgr.cwd, 0) == FAILED) {
-            memset(prompt, '\0', sizeof(char)*(promptLen+1));
+            memset(prompt, BLANK, sizeof(char)*(promptLen+1));
             sprintf(prompt, format, mgr.hostName, mgr.uid, mgr.cwd); // splicing prompt
         }
 

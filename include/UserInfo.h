@@ -2,7 +2,7 @@
     #define __USERINFO_H_
 #include "CommandManager.h"
 
-#define UID_LEN 8 // string length of a hexadecimal number of long type
+#define UID_LEN 8 // the string length of a hexadecimal number of long type
 
 typedef struct UserInfoManager_t {
     int nameLimit;

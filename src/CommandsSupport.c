@@ -112,7 +112,6 @@ int LookFile(char **args, int argc)
 
 int ListDir(char **args, int argc)
 {
-    /* not support arguments ls commands */
     if (argc > 1) {
         ThrowError("ls: too many arguments");
         return FAILED;
@@ -182,8 +181,8 @@ int Execute(char **args, int argc)
     int fd[2], status = SUCCESS;
     if (pipe(fd) == -1)
         return FAILED;
-    /* execute may not return, which means there may not be anything in pipe *
-     * so we need to use a non-blocking pipe */
+    /* function execute may not return, which means there may not be anything in pipe *
+     * so we need to use a non-blocking pipe again */
     fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL)|O_NONBLOCK);
 
     pid_t pid = fork();
