@@ -24,14 +24,15 @@ int main(int argc, char **argv)
 
         mgr.cmdMgr.Scanner(&mgr.cmdMgr, stdin, prompt)->Paraser(&mgr.cmdMgr, " ");
         mgr.lastCmdType = mgr.cmdMgr.Processor(&mgr.cmdMgr);
-        if (mgr.lastCmdType == buildinCd)
+        if (mgr.lastCmdType == buildinCd) {
             mgr.Update(&mgr);
+            cwdLen = strlen(mgr.cwd);
+        }
 
         /* ensure that the cwd can always be loaded into prompt */
-        cwdLen = strlen(mgr.cwd);
         if (promptLen < basicLen+cwdLen) {
-            /* if it is too small, an array expansion will be triggered */
-            /* and make it as big as possible */
+            /* if it is too small, an array expansion will be triggered
+             * and make it as big as possible */
             promptLen = basicLen+(cwdLen*2);
             free(prompt);
             prompt = (char*)malloc(sizeof(char)*(promptLen+1));
