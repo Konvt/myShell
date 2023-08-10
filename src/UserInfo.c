@@ -25,8 +25,7 @@ UserMgr* CreateUserMgr(UserMgr* const this, int readLimit)
     this->lastCmdType = nill;
     this->nameLimit = 32; // same as linux
     this->homeWd = this->cwd = NULL;
-    this->hostName = (char*)malloc(sizeof(char)*(this->nameLimit+1));
-    memset(this->hostName, BLANK, sizeof(char)*(this->nameLimit+1));
+    this->hostName = (char*)calloc(this->nameLimit+1, sizeof(char));
     CreateArgsMgr(&this->cmdMgr, readLimit);
 
     this->Destructor = &RecycleUserMgr;
@@ -91,8 +90,7 @@ long GetID()
 
 int GetHostName(char* const name, int nameLimit, const char *prompt)
 {
-    char *input = (char*)malloc(sizeof(char)*(nameLimit+1));
-    memset(input, BLANK, sizeof(char)*(nameLimit+1));
+    char *input = (char*)calloc(nameLimit+1, sizeof(char));
     GetInput(stdin, input, nameLimit, prompt);
 
     int hasSpace = FALSE, nameLen = 0;

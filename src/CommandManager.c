@@ -19,10 +19,8 @@ ArgsMgr* CreateArgsMgr(ArgsMgr* const this, int readLimit)
         return CreateArgsMgr((ArgsMgr*)malloc(sizeof(ArgsMgr)), readLimit);
 
     this->_readLimit = readLimit;
-    this->_commands = (char*)malloc(sizeof(char)*(readLimit+1));
-    memset(this->_commands, BLANK, sizeof(char)*(readLimit+1));
-    this->_originalCmd = (char*)malloc(sizeof(char)*(readLimit+1));
-    memset(this->_originalCmd, BLANK, sizeof(char)*(readLimit+1));
+    this->_commands = (char*)calloc(readLimit+1, sizeof(char));
+    this->_originalCmd = (char*)calloc(readLimit+1, sizeof(char));
     this->argc = this->_commandsLen = 0;
     this->args = NULL;
 
@@ -61,8 +59,7 @@ ArgsMgr* CommandAnalyzer(ArgsMgr* const this, const char* delims)
         str=strtok(NULL, delims), this->argc++);
 
     free(this->args);
-    this->args = (char**)malloc(sizeof(char*)*this->argc+1);
-    memset(this->args, 0, sizeof(char*)*this->argc);
+    this->args = (char**)calloc(this->argc+1, sizeof(char*));
     /* to meet the parameter requirements of execvp */
     this->args[this->argc] = NULL;
 
