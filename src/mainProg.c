@@ -26,7 +26,7 @@ int main(int argc, char **argv)
             /* ensure that the cwd can always be loaded into prompt */
             if (promptLen < basicLen+cwdLen) {
                 /* if it is too small, an array expansion will be triggered
-                * and make it as big as possible */
+                 * and make it as big as possible */
                 promptLen = basicLen+(cwdLen*2);
                 free(prompt);
                 prompt = (char*)calloc(promptLen+1, sizeof(char));
