@@ -1,4 +1,13 @@
 # myShell
+
+**Contents**  
+- [myShell](#myshell)
+  - [About Makefile](#about-makefile)
+  - [Potential Problem](#potential-problem)
+- [myShell\_zh-cn](#myshell_zh-cn)
+  - [关于 Makefile](#关于-makefile)
+  - [潜在问题](#潜在问题)
+
 This is a simple shell program that mimics the bash, and written by C. No third-party libraries other than those provided by linux are used.
 
 After compiling and running the target file, entering `help` commands will show all the commands that the shell supports.
