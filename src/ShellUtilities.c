@@ -62,7 +62,8 @@ void GetInput(FILE* src, char* acceptInput, int inputLimit, const char* prompt)
 
 int MatchSubstr(const char* mainstr, const char* substr, int pos)
 {
-    return strstr(mainstr+pos, substr);
+    const char *ptr = strstr(mainstr+pos, substr);
+    return ptr==NULL ? -1 : (int)(ptr-mainstr);
 }
 
 void AdjustDir(char* wd, const char* homeWd)
@@ -72,8 +73,7 @@ void AdjustDir(char* wd, const char* homeWd)
 
     int pos = 0, exitFlag = FALSE;
     do {
-        const char *substr = MatchSubstr(wd, homeWd, pos);
-        int offset = substr==NULL ? -1 : (int)(substr-wd);
+        int offset = MatchSubstr(wd, homeWd, pos);
         if (offset == -1) break;
         else if (offset - 1 >= 0 && wd[offset - 1] != sep) {
             /* when we match something like 'byhome/'
