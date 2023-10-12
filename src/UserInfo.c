@@ -25,7 +25,7 @@ UserMgr* CreateUserMgr(UserMgr* const this, int readLimit)
     this->lastCmdType = nill;
     this->nameLimit = 32; // same as linux
     this->homeWd = this->cwd = NULL;
-    this->hostName = (char*)calloc(this->nameLimit+1, sizeof(char));
+    this->hostName = (char*)calloc(this->nameLimit + 1, sizeof(char));
     CreateArgsMgr(&this->cmdMgr, readLimit);
 
     this->Destructor = &RecycleUserMgr;
@@ -52,13 +52,13 @@ UserMgr* UserLogin(UserMgr* const this)
         printf("\tWhitespace characters are not allowed, "
                 "and characters are capped at %d\n\n", this->nameLimit);
 
-    this->uid =  GetID();
-    this->homeWd = (char*)malloc(strlen(this->hostName)+1);
+    this->uid = GetID();
+    this->homeWd = (char*)malloc(strlen(this->hostName) + 1);
     strcpy(this->homeWd, this->hostName); // set the home directory to the user name
     if (access(this->homeWd, F_OK) == -1) {
         if (MakeDir(&this->hostName, 1) == FAILED) {
             const char *errorFormat = "set dir '%s' failed!";
-            char *tempPrompt = (char*)malloc(sizeof(char)*(strlen(errorFormat)+this->nameLimit+1));
+            char *tempPrompt = (char*)malloc(sizeof(char) * (strlen(errorFormat) + this->nameLimit + 1));
             sprintf(tempPrompt, errorFormat, this->hostName);
 
             ThrowError(tempPrompt);
@@ -90,11 +90,11 @@ long GetID()
 
 int GetHostName(char* const name, int nameLimit, const char *prompt)
 {
-    char *input = (char*)calloc(nameLimit+1, sizeof(char));
+    char *input = (char*)calloc(nameLimit + 1, sizeof(char));
     GetInput(stdin, input, nameLimit, prompt);
 
     int hasSpace = FALSE, nameLen = 0;
-    for (int i=0; i<nameLimit; i++) {
+    for (int i = 0; i < nameLimit; i++) {
         if (isspace(input[i])) {
             hasSpace = TRUE;
             break;
@@ -104,14 +104,14 @@ int GetHostName(char* const name, int nameLimit, const char *prompt)
 
     if (hasSpace == FALSE)
         strcpy(name, input);
-    else if (hasSpace==TRUE || nameLen==0) {// space characters isn't allowed
+    else if (hasSpace == TRUE || nameLen == 0) {// space characters isn't allowed
         const char *format = "\nUser name error: '%s'\n";
-        char *info = (char*)malloc(sizeof(char)*(strlen(format)+strlen(input)+1));
+        char *info = (char*)malloc(sizeof(char) * (strlen(format) + strlen(input) + 1));
         sprintf(info, format, input);
         ThrowError(info);
         free(info);
     }
 
     free(input);
-    return hasSpace==FALSE && nameLen!=0 ? SUCCESS : FAILED;
+    return hasSpace == FALSE && nameLen != 0 ? SUCCESS : FAILED;
 }

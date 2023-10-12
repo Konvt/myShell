@@ -21,7 +21,7 @@ void Welcome()
         "| |/ |/ /  __/ / /__/ /_/ / / / / / /  __/  / /_/ /_/ /  / / / / / / /_/ /___/ / / / /  __/ / /  \n"
         "|__/|__/\\___/_/\\___/\\____/_/ /_/ /_/\\___/   \\__/\\____/  /_/ /_/ /_/\\__, //____/_/ /_/\\___/_/_/   \n"
         "                                                                  /____/                         \n"
-        );
+    );
 }
 
 void GetHelp()
@@ -51,14 +51,14 @@ char* GetCwd(const char* homeWd)
 int ChangeCwd(const char* target)
 {
     if (access(target, F_OK) != -1)
-        return chdir(target)==0 ? SUCCESS : FALSE;
+        return chdir(target) == 0 ? SUCCESS : FALSE;
     else return FAILED;
 }
 
 int Echo(char** args, int argc)
 {
     if (argc <= 1) return FAILED;
-    for (int i=1; i<argc; i++)
+    for (int i = 1; i < argc; i++)
         fputs(args[i], stdout);
     putchar('\n');
 
@@ -71,11 +71,11 @@ int MakeDir(char **args, int argc)
     if (argc == 1)
         flag = mkdir(args[0], DEFAULT_MODE);
     else {
-        for (int i=1; i<argc; i++)
+        for (int i = 1; i < argc; i++)
             flag = mkdir(args[i], DEFAULT_MODE);
     }
 
-    return flag!=-1 ? SUCCESS : FAILED;
+    return flag != -1 ? SUCCESS : FAILED;
 }
 
 int TouchFile(char **args, int argc)
@@ -84,23 +84,23 @@ int TouchFile(char **args, int argc)
     if (argc == 1)
         flag = creat(args[0], DEFAULT_MODE);
     else {
-        for (int i=1; i<argc; i++)
+        for (int i = 1; i < argc; i++)
             flag = creat(args[i], DEFAULT_MODE);
     }
 
-    return flag!=-1 ? SUCCESS : FAILED;
+    return flag != -1 ? SUCCESS : FAILED;
 }
 
 int LookFile(char **args, int argc)
 {
     if (argc <= 1) return FAILED;
-    for (int i=1; i<argc; i++) {
-        if (access(args[i], F_OK|R_OK) == -1)
+    for (int i = 1; i < argc; i++) {
+        if (access(args[i], F_OK | R_OK) == -1)
             ThrowError("File don't exist or cannot be read");
         else {
             int bufSize = 1025;
             FILE *src = fopen(args[i], "r");
-            char *buffer = (char*)malloc(sizeof(char)*bufSize);
+            char *buffer = (char*)malloc(sizeof(char) * bufSize);
             do {
                 fgets(buffer, bufSize, src);
                 fputs(buffer, stdout);
@@ -119,9 +119,9 @@ int ListDir(char **args, int argc)
     DIR *dirPtr = opendir(".");
     struct dirent *ent = NULL;
 
-    while((ent = readdir(dirPtr)) != NULL) {
-        if ((ent->d_type==4 || ent->d_type==8) 
-            && ent->d_name[0]!='.')
+    while ((ent = readdir(dirPtr)) != NULL) {
+        if ((ent->d_type == 4 || ent->d_type == 8)
+            && ent->d_name[0] != '.')
             printf("%s  ", ent->d_name);
     }
     closedir(dirPtr);
@@ -133,7 +133,7 @@ int ListDir(char **args, int argc)
 int CopyFile(char **args, int argc)
 {
     /* parameter error or source file does not exist */
-    if (argc<2 || access(args[1], F_OK)==-1) {
+    if (argc < 2 || access(args[1], F_OK) == -1) {
         if (argc >= 2) ThrowError("Source file don't exist");
         else ThrowError("cp: Too many arguments");
         return FAILED;
@@ -145,7 +145,7 @@ int CopyFile(char **args, int argc)
     struct stat fileAttr;
     stat(args[1], &fileAttr);
     if (access(args[2], F_OK) == -1) {
-        if (TouchFile(args+2, 1) == FAILED) {
+        if (TouchFile(args + 2, 1) == FAILED) {
             ThrowError("Create target file failed");
             return FAILED;
         }
@@ -163,7 +163,7 @@ int CopyFile(char **args, int argc)
 
     /* C lib functions have their own buffers, so we don't use system call here */
     FILE *srcFile = fopen(args[1], "rb"), *dstFile = fopen(args[2], "wb");
-    char *buffer = (char*)malloc(sizeof(char)*bufSize);
+    char *buffer = (char*)malloc(sizeof(char) * bufSize);
     do {
         /* if the last line is small than buffer, some null characters will be input to the file */
         int readNum = fread(buffer, sizeof(char), bufSize, srcFile);
@@ -183,7 +183,7 @@ int Execute(char **args, int argc)
         return FAILED;
     /* function execute may not return, which means there may not be anything in pipe *
      * so we need to use a non-blocking pipe again */
-    fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL)|O_NONBLOCK);
+    fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK);
 
     pid_t pid = fork();
     if (pid < 0) {
@@ -192,7 +192,7 @@ int Execute(char **args, int argc)
     }
     if (pid == 0) {
         close(fd[0]);
-        execvp(args[0], args+1);
+        execvp(args[0], args + 1);
         /* if failed */
         int message = FAILED;
         write(fd[1], &message, sizeof(int));

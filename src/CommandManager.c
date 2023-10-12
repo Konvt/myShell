@@ -19,8 +19,8 @@ ArgsMgr* CreateArgsMgr(ArgsMgr* const this, int readLimit)
         return CreateArgsMgr((ArgsMgr*)malloc(sizeof(ArgsMgr)), readLimit);
 
     this->_readLimit = readLimit;
-    this->_commands = (char*)calloc(readLimit+1, sizeof(char));
-    this->_originalCmd = (char*)calloc(readLimit+1, sizeof(char));
+    this->_commands = (char*)calloc(readLimit + 1, sizeof(char));
+    this->_originalCmd = (char*)calloc(readLimit + 1, sizeof(char));
     this->argc = this->_commandsLen = 0;
     this->args = NULL;
 
@@ -45,7 +45,7 @@ ArgsMgr* ReadCommand(ArgsMgr* const this, FILE* src, const char* prompt)
     GetInput(stdin, this->_commands, this->_readLimit, prompt);
     this->_commandsLen = strlen(this->_commands);
     /* clear the last command */
-    memset(this->_originalCmd, BLANK, this->_readLimit+1);
+    memset(this->_originalCmd, BLANK, this->_readLimit + 1);
     strcpy(this->_originalCmd, this->_commands);
 
     return this;
@@ -55,21 +55,21 @@ ArgsMgr* CommandAnalyzer(ArgsMgr* const this, const char* delims)
 {
     this->argc = 0;
     /* cut tokens by space */
-    for (char *str=strtok(this->_commands, delims); str!=NULL; 
-        str=strtok(NULL, delims), this->argc++);
+    for (char *str = strtok(this->_commands, delims); str != NULL;
+        str = strtok(NULL, delims), this->argc++);
 
     free(this->args);
-    this->args = (char**)calloc(this->argc+1, sizeof(char*));
+    this->args = (char**)calloc(this->argc + 1, sizeof(char*));
     /* to meet the parameter requirements of execvp */
     this->args[this->argc] = NULL;
 
     /* find the token and assign their starting address to args */
-    for (int i=1, backtrack=1, savedArgsNum=0; 
-        i<=(this->_commandsLen) && savedArgsNum<(this->argc); i++, backtrack++) {
-        if (this->_commands[i]!=BLANK && this->_commands[i-1]==BLANK)
+    for (int i = 1, backtrack = 1, savedArgsNum = 0;
+        i <= (this->_commandsLen) && savedArgsNum < (this->argc); i++, backtrack++) {
+        if (this->_commands[i] != BLANK && this->_commands[i - 1] == BLANK)
             backtrack = 0; // backtrack is used to backtrack to the head of each token
-        else if (this->_commands[i]==BLANK && this->_commands[i-1]!=BLANK) {
-            this->args[savedArgsNum++] = &this->_commands[i-backtrack];
+        else if (this->_commands[i] == BLANK && this->_commands[i - 1] != BLANK) {
+            this->args[savedArgsNum++] = &this->_commands[i - backtrack];
             backtrack = 0;
         }
     }
@@ -79,19 +79,19 @@ ArgsMgr* CommandAnalyzer(ArgsMgr* const this, const char* delims)
 
 CmdType CommandProcess(ArgsMgr* const this)
 {
-    if (this->args[0]==NULL || this->args[0][0]==BLANK)
+    if (this->args[0] == NULL || this->args[0][0] == BLANK)
         return nill; // if command is a line of space
     CmdType type = nill;
     int executeFlag = FAILED, pipeFlag = -1, reFlag = -1;
 
-    for (int i=0; i<this->argc; i++) {
+    for (int i = 0; i < this->argc; i++) {
         if (strcmp(this->args[i], "||") == 0)
             pipeFlag = i;
         else if (strcmp(this->args[i], ">>") == 0)
             reFlag = i;
     }
     /* they are mutually exclusive */
-    if (pipeFlag!=-1 && reFlag!=-1) {
+    if (pipeFlag != -1 && reFlag != -1) {
         ThrowError("Unsupported command");
         return nill;
     }
@@ -118,7 +118,7 @@ CmdType CommandProcess(ArgsMgr* const this)
 
 int PipeExecute(char** args, int argc, int pipeFlag)
 {
-    if (argc<3 || pipeFlag==0 || pipeFlag==argc-1)
+    if (argc < 3 || pipeFlag == 0 || pipeFlag == argc - 1)
         return FAILED;
     /* transfer the output of the left side of '||' to the stdin of the right */
     int streamPipe[2], statusPipe[2];
@@ -126,18 +126,18 @@ int PipeExecute(char** args, int argc, int pipeFlag)
         return FAILED;
     if (pipe(statusPipe) == -1)
         return FAILED;
-    fcntl(statusPipe[0], F_SETFL, fcntl(statusPipe[0], F_GETFL)|O_NONBLOCK);
+    fcntl(statusPipe[0], F_SETFL, fcntl(statusPipe[0], F_GETFL) | O_NONBLOCK);
     /* command with no output will cause one of the subprocesses to block continuously */
     /* so a non-blocking pipe is used here */
-    fcntl(streamPipe[0], F_SETFL, fcntl(streamPipe[0], F_GETFL)|O_NONBLOCK);
+    fcntl(streamPipe[0], F_SETFL, fcntl(streamPipe[0], F_GETFL) | O_NONBLOCK);
 
-    CmdType type[2] = { nill, nill };
+    CmdType type[2] = {nill, nill};
     int executeFlag = SUCCESS;
     type[0] = SyntacticParser(args, argc);
-    type[1] = SyntacticParser(args+pipeFlag+1, argc-pipeFlag-1);
+    type[1] = SyntacticParser(args + pipeFlag + 1, argc - pipeFlag - 1);
 
     pid_t pid[2];
-    for (int cmdNum=0; cmdNum<2; cmdNum++) {
+    for (int cmdNum = 0; cmdNum < 2; cmdNum++) {
         /* all commands will be executed after forking */
         /* thus the commands such as "exit" will not be executed actually */
         pid[cmdNum] = fork();
@@ -151,13 +151,13 @@ int PipeExecute(char** args, int argc, int pipeFlag)
                 /* reorganizes args and argc that the current process should process */
                 args[pipeFlag] = NULL;
                 argc = pipeFlag;
-            /* at the back of '||' */
+                /* at the back of '||' */
             } else if (cmdNum == 1) {
                 close(streamPipe[1]);
                 /* 0 is stdin */
                 dup2(streamPipe[0], 0);
-                args = args+pipeFlag+1;
-                argc = argc-pipeFlag-1;
+                args = args + pipeFlag + 1;
+                argc = argc - pipeFlag - 1;
             }
             if (type[cmdNum] > buildin)
                 executeFlag = BuildinCmds(args, argc, type[cmdNum]);
@@ -181,16 +181,16 @@ int PipeExecute(char** args, int argc, int pipeFlag)
 
 int RedirectExecute(char** args, int argc, int reFlag)
 {
-    if (argc-reFlag-1 > 1) {
+    if (argc - reFlag - 1 > 1) {
         ThrowError("Too many files");
         return FAILED;
     }
-    if (access(args[reFlag+1], F_OK) == -1) {
-        if (TouchFile(args+reFlag+1, 1)) {
+    if (access(args[reFlag + 1], F_OK) == -1) {
+        if (TouchFile(args + reFlag + 1, 1)) {
             ThrowError("Create target file failed");
             return FAILED;
         }
-    } else if (access(args[reFlag+1], W_OK) == -1) {
+    } else if (access(args[reFlag + 1], W_OK) == -1) {
         ThrowError("Target file cannot be written");
         return FAILED;
     }
@@ -198,16 +198,16 @@ int RedirectExecute(char** args, int argc, int reFlag)
     int fd[2], executeFlag = SUCCESS;
     if (pipe(fd) == -1)
         return FAILED;
-    fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL)|O_NONBLOCK);
+    fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK);
 
     CmdType type = SyntacticParser(args, argc);
-    int output = open(args[reFlag+1], O_WRONLY);
+    int output = open(args[reFlag + 1], O_WRONLY);
     if (fork() == 0) {
         /* redirect the stdout to the file 'output' */
         dup2(output, 1);
         close(fd[0]);
         args[reFlag] = NULL;
-        argc = argc-reFlag-1;
+        argc = argc - reFlag - 1;
         if (type > buildin)
             executeFlag = BuildinCmds(args, argc, type);
         else {
@@ -311,14 +311,14 @@ CmdType SyntacticParser(char** args, int argc)
         break;
     case 'd': /* dir */
     case 'l': /* ls */
-        if (strcmp(args[0], "ls")==0 || strcmp(args[0], "dir")==0)
+        if (strcmp(args[0], "ls") == 0 || strcmp(args[0], "dir") == 0)
             return externLs;
         else if (strcmp(args[0], "look") == 0)
             return externLook;
         break;
     case 'g':
-        if (argc==2 && strcmp(args[0], "goto")==0 
-            && strcmp(args[1], "moon")==0)
+        if (argc == 2 && strcmp(args[0], "goto") == 0
+            && strcmp(args[1], "moon") == 0)
             return gotoMoon;
         break;
     case '5':
