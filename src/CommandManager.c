@@ -80,8 +80,8 @@ ArgsMgr* CommandAnalyzer(ArgsMgr* const this, const char* delims)
 CmdType CommandProcess(ArgsMgr* const this)
 {
     if (this->args[0] == NULL || this->args[0][0] == BLANK)
-        return nill; // if command is a line of space
-    CmdType type = nill;
+        return nil; // if command is a line of space
+    CmdType type = nil;
     int executeFlag = FAILED, pipeFlag = -1, reFlag = -1;
 
     for (int i = 0; i < this->argc; i++) {
@@ -93,7 +93,7 @@ CmdType CommandProcess(ArgsMgr* const this)
     /* they are mutually exclusive */
     if (pipeFlag != -1 && reFlag != -1) {
         ThrowError("Unsupported command");
-        return nill;
+        return nil;
     }
 
     if (pipeFlag != -1)
@@ -131,7 +131,7 @@ int PipeExecute(char** args, int argc, int pipeFlag)
     /* so a non-blocking pipe is used here */
     fcntl(streamPipe[0], F_SETFL, fcntl(streamPipe[0], F_GETFL) | O_NONBLOCK);
 
-    CmdType type[2] = {nill, nill};
+    CmdType type[2] = {nil, nil};
     int executeFlag = SUCCESS;
     type[0] = SyntacticParser(args, argc);
     type[1] = SyntacticParser(args + pipeFlag + 1, argc - pipeFlag - 1);

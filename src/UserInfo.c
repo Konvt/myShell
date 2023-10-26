@@ -22,7 +22,7 @@ UserMgr* CreateUserMgr(UserMgr* const this, int readLimit)
         return CreateUserMgr((UserMgr*)malloc(sizeof(UserMgr)), readLimit);
 
     userNum++;
-    this->lastCmdType = nill;
+    this->lastCmdType = nil;
     this->nameLimit = 32; // same as linux
     this->homeWd = this->cwd = NULL;
     this->hostName = (char*)calloc(this->nameLimit + 1, sizeof(char));

@@ -4,7 +4,7 @@
 
 typedef enum CommandType_t {
 /* the first member of each line is used as separator and has no real meaning */
-    nill,
+    nil,
     external, externCopy, externMkdir, externTouch, externLook, externLs,
     buildin, buildinExit, buildinEcho, buildinHelp, buildinPwd, buildinCd,
     gotoMoon, fiveFives,
