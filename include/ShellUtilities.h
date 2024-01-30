@@ -1,5 +1,5 @@
 #ifndef __SHELL_H_
-    #define __SHELL_H_
+  #define __SHELL_H_
 #include <stdio.h>
 
 /* error code */
@@ -16,6 +16,8 @@
 #define FAILED -1
 
 #define EGG TRUE
+
+#define GarbagCollect(ptr) do {free(ptr); ptr = NULL;} while (0)
 
 /* throw a line of error info to stdout */
 void ThrowError(const char* what);

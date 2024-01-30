@@ -1,19 +1,18 @@
 #ifndef __USERINFO_H_
-    #define __USERINFO_H_
+  #define __USERINFO_H_
 #include "CommandManager.h"
 
 #define UID_LEN 8 // the string length of a hexadecimal number of long type
 
 typedef struct UserInfoManager_t {
-    int nameLimit;
-    long uid;
-    CmdType lastCmdType;
-    char *cwd, *hostName, *homeWd;
-    ArgsMgr cmdMgr;
+  int nameLimit;
+  long uid;
+  char *cwd, *hostName, *homeWd;
+  ArgsMgr cmdMgr;
 
-    void (*Destructor)(struct UserInfoManager_t* const);
-    struct UserInfoManager_t* (*Login)(struct UserInfoManager_t* const);
-    void (*Update)(struct UserInfoManager_t* const);
+  void (*Destructor)(struct UserInfoManager_t* const);
+  struct UserInfoManager_t* (*Login)(struct UserInfoManager_t* const);
+  void (*Update)(struct UserInfoManager_t* const);
 } UserMgr;
 
 UserMgr* CreateUserMgr(UserMgr* const this, int readLimit);

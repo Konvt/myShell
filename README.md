@@ -26,7 +26,7 @@ There are some functions in the Makefile, the main is:
 See the source code for more details.
 
 ## Potential Problem
-Not found yet.
+Recursive instruction operations are not supported.
 
 - - -
 
@@ -48,4 +48,4 @@ Makefile 里被塞进了几个功能，主要是：
 详细可以去查看 Makefile 源码.
 
 ## 潜在问题
-还没找到.
+不支持递归指令操作.

@@ -1,0 +1,6 @@
+img/*
+.vscode/*
+mainProg
+build/*
+
+*.tar

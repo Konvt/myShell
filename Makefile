@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -Og -Wall
 
 PACK_PATH = ./
 PACK_NAME = $(shell basename $(shell pwd))
