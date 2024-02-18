@@ -156,14 +156,14 @@ int execute_pipe(char** args, int argc, int pipe_flag)
   if (argc < 3 || pipe_flag == 0 || pipe_flag == argc - 1)
     return failed;
   /* 将 '|' 左侧的 stdout 重定向到右侧的 stdin */
-  int streamPipe[2], statusPipe[2];
-  if (pipe(streamPipe) == -1 || pipe(statusPipe) == -1) {
+  int stream_pipe[2], status_pipe[2];
+  if (pipe(stream_pipe) == -1 || pipe(status_pipe) == -1) {
     throw_error("pipe", "create pipe error");
     return failed;
   }
-  fcntl(statusPipe[0], F_SETFL, fcntl(statusPipe[0], F_GETFL) | O_NONBLOCK);
+  fcntl(status_pipe[0], F_SETFL, fcntl(status_pipe[0], F_GETFL) | O_NONBLOCK);
   /* 避免无输出的指令阻塞了进程 */
-  fcntl(streamPipe[0], F_SETFL, fcntl(streamPipe[0], F_GETFL) | O_NONBLOCK);
+  fcntl(stream_pipe[0], F_SETFL, fcntl(stream_pipe[0], F_GETFL) | O_NONBLOCK);
 
   expr_type type[2] = {nil, nil};
   int execute_flag = success;
@@ -175,20 +175,20 @@ int execute_pipe(char** args, int argc, int pipe_flag)
     /* 由于所有指令都会 fork 后由子进程执行，故在管道指令中使用 exit 是没用的 */
     pid[num_expr] = fork();
     if (pid[num_expr] == 0) {
-      close(statusPipe[0]);
+      close(status_pipe[0]);
       /* in front of '|' */
       if (num_expr == 0) {
-        close(streamPipe[0]);
+        close(stream_pipe[0]);
         /* 1 is stdout */
-        dup2(streamPipe[1], 1);
+        dup2(stream_pipe[1], 1);
         /* reorganizes args and argc that the current process should process */
         args[pipe_flag] = NULL;
         argc = pipe_flag;
         /* at the back of '|' */
       } else if (num_expr == 1) {
-        close(streamPipe[1]);
+        close(stream_pipe[1]);
         /* 0 is stdin */
-        dup2(streamPipe[0], 0);
+        dup2(stream_pipe[0], 0);
         args = args + pipe_flag + 1;
         argc = argc - pipe_flag - 1;
       }
@@ -196,19 +196,19 @@ int execute_pipe(char** args, int argc, int pipe_flag)
         execute_flag = buildin_expr(args, argc, type[num_expr]);
       else {
         execute_flag = external_expr(args, argc, type[num_expr]);
-        write(statusPipe[1], &execute_flag, sizeof(int));
+        write(status_pipe[1], &execute_flag, sizeof(int));
       }
-      close(streamPipe[0]);
-      close(streamPipe[1]);
+      close(stream_pipe[0]);
+      close(stream_pipe[1]);
       exit(success);
     }
     /* there will be nothing to be read if we don't wait for subprocess end */
     waitpid(pid[num_expr], NULL, 0);
   }
-  read(statusPipe[0], &execute_flag, sizeof(int));
+  read(status_pipe[0], &execute_flag, sizeof(int));
 
-  close(streamPipe[0]); close(streamPipe[1]);
-  close(statusPipe[0]); close(statusPipe[1]);
+  close(stream_pipe[0]); close(stream_pipe[1]);
+  close(status_pipe[0]); close(status_pipe[1]);
   return execute_flag;
 }
 
