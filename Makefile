@@ -1,40 +1,33 @@
-CC = gcc
-CFLAGS = -Og -Wall
+SRC_DIR := ./src
+UTIL_DIR := ./util
+BUILD_DIR := ./build
 
-PACK_PATH = ./
-PACK_NAME = $(shell basename $(shell pwd))
+CC := gcc
+OPT_LEVEL ?= Og
+CFLAGS := -Wall -Wno-unused-result -$(OPT_LEVEL) -I $(SRC_DIR) -I $(UTIL_DIR)
 
-TARGET = mainProg
-OJB_DIR = ./build
-LIB_DIR = ./include
-SRC_DIR = $(dir ./src/mainProg.c)
+SRC := $(wildcard $(SRC_DIR)/*.c)
+UTIL_SRC := $(wildcard $(UTIL_DIR)/*.c)
 
-GCC_SOURCE_PATH = $(foreach dir, $(SRC_DIR), $(wildcard $(dir)/*.c))
-GCC_OBJ_PATH = $(patsubst %.c, $(OJB_DIR)/%.o, $(notdir $(GCC_SOURCE_PATH)))
+OBJ := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC))
+UTIL_OBJ := $(patsubst $(UTIL_DIR)/%.c, $(BUILD_DIR)/%.o, $(UTIL_SRC))
+DEP := $(OBJ:.o=.d) $(UTIL_OBJ:.o=.d)
 
-$(TARGET): $(GCC_OBJ_PATH)
-	$(CC) $(GCC_OBJ_PATH) -I $(LIB_DIR) $(CFLAGS) -o $(TARGET)
+TARGET := ./mainProg
 
--include $(OJB_DIR)/*.d
-$(OJB_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) -c -MMD -I $(LIB_DIR) $(LIB_PATH) $< -o $@
-
-# clean up all intermediate files
-.PHONY: clean
+all: $(TARGET)
 clean:
-	rm $(GCC_OBJ_PATH) $(TARGET) && make independ
+	rm -rf $(BUILD_DIR) $(TARGET)
+rebuild: clean all
+-include $(DEP)
 
-# only clean up .d files
-.PHONY: independ
-independ:
-	rm $(OJB_DIR)/*.d
+# 生成目标文件
+$(TARGET): $(OBJ) $(UTIL_OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# package the source code into a .tar file
-.PHONY: pack
-pack:
-	tar czvf $(PACK_PATH)/$(PACK_NAME).tar ./
-
-# create the project dirs and files
-.PHONY: new
-new:
-	mkdir src include build && touch ./src/mainProg.c README.md
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@ -MMD -MF $(@:.o=.d)
+$(BUILD_DIR)/%.o: $(UTIL_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@ -MMD -MF $(@:.o=.d)

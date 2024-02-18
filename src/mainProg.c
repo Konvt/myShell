@@ -1,42 +1,64 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "UserInfo.h"
-#include "ShellUtilities.h"
+#include <string.h> // strlen
+#include <stdlib.h> // exit, calloc, free
+
+#include "shell_runtime.h"
+#include "error_handle.h"
+#include "font_style.h"
+#include "welcome.h"
 
 int main()
 {
-  int commandLimit = 200;
-  UserMgr mgr;
-  if (CreateUserMgr(&mgr, commandLimit) == NULL)
-    exit(2);
+  usr_info user;
+  shell_rt shell;
+  if (make_usr_info(&user) == NULL) {
+    throw_error("login", "create user failure");
+    exit(constructor_error);
+  }
+  if (create_shell(&shell, &user) == NULL) {
+    throw_error("login", "create shell failure");
+    exit(constructor_error);
+  }
+  const char *prompt_fmt = STYLIZE("%s@%x", FNT_GREEN FNT_BOLD_TEXT) ":" STYLIZE("%s", FNT_BLUE FNT_BOLD_TEXT) "$ ";
+  const size_t basic_len = name_limit + uid_len + strlen(prompt_fmt);
 
-  const char *format = "%s@%x:%s$ ";
-  int basicLen = mgr.nameLimit + UID_LEN + strlen(format);
+  size_t cwd_len = strlen(shell.cwd);
+  size_t prompt_len = basic_len + cwd_len;
 
-  mgr.Login(&mgr);
-  int cwdLen = strlen(mgr.cwd), promptLen = basicLen + cwdLen;
-  char *prompt = (char*)calloc(promptLen + 1, sizeof(char));
-  sprintf(prompt, format, mgr.hostName, mgr.uid, mgr.cwd); // splicing prompt
+  char *prompt = (char*)calloc(prompt_len + 1, sizeof(char));
+  if (prompt == NULL) {
+    shell.destructor(&shell);
+    user.destructor(&user);
+    throw_error("prompt", "create prompt string failure");
+    exit(init_error);
+  }
+  sprintf(prompt, prompt_fmt, shell.active_usr->name, shell.active_usr->uid, shell.cwd); // splicing prompt
 
+  welcome();
   while (1) {
-    mgr.cmdMgr.Scanner(&mgr.cmdMgr, stdin, prompt)->Paraser(&mgr.cmdMgr, " ")->Processor(&mgr.cmdMgr);
-    if (mgr.cmdMgr.lastCmdType == buildinCd) {
-      mgr.Update(&mgr);
-      cwdLen = strlen(mgr.cwd);
-      /* ensure that the cwd can always be loaded into prompt */
-      if (promptLen < basicLen + cwdLen) {
-        /* if it is too small, an array expansion will be triggered
-         * and make it as big as possible */
-        promptLen = basicLen + (cwdLen * 2);
-        free(prompt); prompt = (char*)calloc(promptLen + 1, sizeof(char));
+    shell.scanner(&shell, stdin, prompt)->interpreter(&shell);;
+
+    if (shell.prev_exprT == buildinCd) {
+      cwd_len = strlen(shell.cwd);
+      /* 保证 prompt 始终能够容纳下 cwd */
+      if (prompt_len < basic_len + cwd_len) {
+        /* 容纳不下时触发一次手动扩容 */
+        prompt_len = basic_len + (cwd_len * 2);
+        release_ptr(prompt); // 扩容因子为 2
+        prompt = (char*)calloc(prompt_len + 1, sizeof(char));
+        if (prompt == NULL) {
+          shell.destructor(&shell);
+          user.destructor(&user);
+          throw_error("prompt", "reallocate prompt string failure");
+          exit(failed);
+        }
       }
-      sprintf(prompt, format, mgr.hostName, mgr.uid, mgr.cwd); // splicing prompt
+      sprintf(prompt, prompt_fmt, shell.active_usr->name, shell.active_usr->uid, shell.cwd);
     }
   }
 
-  free(prompt);
-  mgr.Destructor(&mgr);
+  release_ptr(prompt);
+  shell.destructor(&shell);
+  user.destructor(&user);
 
   return 0;
 }
