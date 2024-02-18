@@ -108,7 +108,9 @@ void interprete_epxr(shell_rt* const this)
     }
   }
 
-  if (execute_flag == failed)
+  // 除了 error_code::external 以外的指令处理都有自己的报错信息
+  // 所以这里要特殊处理
+  if (execute_flag == failed && this->prev_exprT == external)
     throw_error(this->_origianl_expr, "command error or not found");
 }
 

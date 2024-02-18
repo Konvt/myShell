@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <stdio.h>  // puts, fopen, fgets, fputs, fclose, printf, putchar, fread, feof, fwrite...
+#include <stdlib.h> // malloc
 
 #include <unistd.h>
 #include <dirent.h>

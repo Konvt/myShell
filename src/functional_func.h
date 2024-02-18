@@ -5,12 +5,11 @@ void welcome();
 
 void get_help();
 
-/* gets cwd, if homeWd is NULL, returns an unprocessed string */
+/* gets cwd, if `home` is NULL, returns an unprocessed string */
 char* get_cwd(const char* home);
 
 int change_wd(const char* target);
 
-/* only returns the execution status of the last parameter */
 int echo(char** args, int argc);
 
 int make_dir(char **args, int argc);
