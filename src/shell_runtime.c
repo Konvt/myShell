@@ -130,7 +130,7 @@ shell_rt* analyse_expr(shell_rt* const this)
   this->argc = 0;
   /* cut tokens by space */
   for (char *str = strtok(this->_processed_expr, " "); str != NULL;
-      str = strtok(NULL, " "), this->argc++);
+       str = strtok(NULL, " "), this->argc++);
 
   release_ptr(this->args);
   this->args = (char**)calloc(this->argc + 1, sizeof(char*));
