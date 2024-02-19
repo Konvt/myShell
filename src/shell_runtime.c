@@ -155,7 +155,7 @@ int execute_pipe(char** args, int argc, int pipe_flag)
 {
   if (argc < 3 || pipe_flag == 0 || pipe_flag == argc - 1)
     return failed;
-  /* 将 '|' 左侧的 stdout 重定向到右侧的 stdin */
+  /* 将 `|` 左侧的 stdout 重定向到右侧的 stdin */
   int stream_pipe[2], status_pipe[2];
   if (pipe(stream_pipe) == -1 || pipe(status_pipe) == -1) {
     throw_error("pipe", "create pipe error");
@@ -176,7 +176,7 @@ int execute_pipe(char** args, int argc, int pipe_flag)
     pid[num_expr] = fork();
     if (pid[num_expr] == 0) {
       close(status_pipe[0]);
-      /* in front of '|' */
+      /* in front of `|` */
       if (num_expr == 0) {
         close(stream_pipe[0]);
         /* 1 is stdout */
@@ -184,7 +184,7 @@ int execute_pipe(char** args, int argc, int pipe_flag)
         /* reorganizes args and argc that the current process should process */
         args[pipe_flag] = NULL;
         argc = pipe_flag;
-        /* at the back of '|' */
+        /* at the back of `|` */
       } else if (num_expr == 1) {
         close(stream_pipe[1]);
         /* 0 is stdin */

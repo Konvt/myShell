@@ -6,7 +6,7 @@
 /// @brief 裁切字符串指定范围内的首尾空白字符
 /// @param str 待处理字符串
 /// @param terminus 和参数 `str` 构成一个左闭右开的区间 `[str, str + terminus)`
-/// @return 指向第一个非空字符的指针，匹配失败时返回 `NULL`
+/// @return 指向第一个非空字符的指针，参数非法时返回 NULL
 char* trim_str(char* const str, const size_t terminus);
 
 /// @brief 从 `pos` 开始匹配 `substr`
