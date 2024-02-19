@@ -234,10 +234,9 @@ int execute_redirect(char** args, int argc, int redirect_flag)
   fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK);
 
   expr_type type = categorize_epxr(args, argc);
-  int output = open(args[redirect_flag + 1], O_WRONLY);
   if (fork() == 0) {
     /* redirect the stdout to the file 'output' */
-    dup2(output, 1);
+    FILE *output = freopen(args[redirect_flag + 1], "w", stdout);
     close(fd[0]);
     args[redirect_flag] = NULL;
     argc = argc - redirect_flag - 1;
@@ -248,12 +247,12 @@ int execute_redirect(char** args, int argc, int redirect_flag)
       write(fd[1], &execute_flag, sizeof(int));
     }
     close(fd[1]);
+    fclose(output);
     exit(success);
   }
   wait(NULL);
   read(fd[0], &execute_flag, sizeof(int));
 
-  close(output);
   close(fd[0]);
   close(fd[1]);
   return execute_flag;
