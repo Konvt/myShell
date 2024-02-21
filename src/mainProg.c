@@ -1,5 +1,6 @@
 #include <string.h> // strlen
 #include <stdlib.h> // exit, calloc, free
+#include <signal.h> // signal
 
 #include "shell_runtime.h"
 #include "error_handle.h"
@@ -8,15 +9,19 @@
 
 int main()
 {
+  // 屏蔽 ctrl+c 中断
+  signal(SIGINT, SIG_IGN);
+  // 程序关闭只能使用 ctrl+d 输入 EOF
+
   usr_info user;
   shell_rt shell;
   if (make_usr_info(&user) == NULL) {
     throw_error("login", "create user failure");
-    exit(constructor_error);
+    exit(constructorError);
   }
   if (create_shell(&shell, &user) == NULL) {
     throw_error("login", "create shell failure");
-    exit(constructor_error);
+    exit(constructorError);
   }
   const char *prompt_fmt = STYLIZE("%s@%x", FNT_GREEN FNT_BOLD_TEXT) ":" STYLIZE("%s", FNT_BLUE FNT_BOLD_TEXT) "$ ";
   const size_t basic_len = name_limit + uid_len + strlen(prompt_fmt);
@@ -29,7 +34,7 @@ int main()
     shell.destructor(&shell);
     user.destructor(&user);
     throw_error("prompt", "create prompt string failure");
-    exit(init_error);
+    exit(initError);
   }
   sprintf(prompt, prompt_fmt, shell.active_usr->name, shell.active_usr->uid, shell.cwd); // splicing prompt
 

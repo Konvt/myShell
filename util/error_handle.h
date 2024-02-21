@@ -3,8 +3,8 @@
 
 typedef enum error_code_t {
   success, failed,
-  constructor_error, init_error,
-  received_EOF
+  constructorError, initError,
+  receivedEOF
 } error_code;
 
 /// @brief 将错误原因抛出到 `stderr` 中
