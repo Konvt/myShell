@@ -27,8 +27,7 @@ shell_rt* create_shell(shell_rt* const this, usr_info* logged_usr)
   this->active_usr = logged_usr;
   this->cwd = get_cwd(this->active_usr->name);
   if (this->cwd == NULL) {
-    release_ptr(this->_origianl_expr);
-    release_ptr(this->_origianl_expr);
+    release_multiptrs(&this->_processed_expr, &this->_origianl_expr);
     return NULL;
   }
   this->args = NULL; this->argc = 0;
@@ -43,9 +42,7 @@ shell_rt* create_shell(shell_rt* const this, usr_info* logged_usr)
 
 void release_shell(shell_rt* const this)
 {
-  release_ptr(this->_origianl_expr);
-  release_ptr(this->_processed_expr);
-  release_ptr(this->args);
+  release_multiptrs(&this->_origianl_expr, &this->_processed_expr, &this->args);
 
   this->_expr_len = 0;
   this->argc = 0;
