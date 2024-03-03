@@ -16,8 +16,8 @@ void input_str(FILE* infile, char* dest, int char_limit, const char* prompt)
     if (prompt != NULL && dest[0] == NIL_CHAR)
       fputs(prompt, stdout); // 输出提示符
     if (fgets(dest, char_limit, infile) == NULL) {
-      putchar('\n'); // 接收到 EOF，终止进程
-      exit(received_EOF);
+      puts("\nexit"); // 接收到 EOF，终止进程
+      exit(receivedEOF);
     }
     trimmed = trim_str(dest, strlen(dest) + 1);
   } while (trimmed[0] == NIL_CHAR);
