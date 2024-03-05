@@ -4,7 +4,7 @@ BUILD_DIR := ./build
 
 CC := gcc
 OPT_LEVEL ?= Og
-CFLAGS := -Wall -Wno-unused-result -$(OPT_LEVEL) -I $(SRC_DIR) -I $(UTIL_DIR)
+CFLAGS := -Wall -Wno-unused-result -Wno-incompatible-pointer-types -$(OPT_LEVEL) -I $(SRC_DIR) -I $(UTIL_DIR)
 
 SRC := $(wildcard $(SRC_DIR)/*.c)
 UTIL_SRC := $(wildcard $(UTIL_DIR)/*.c)
