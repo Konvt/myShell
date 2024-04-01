@@ -258,29 +258,30 @@ int execute_redirect(char** args, int argc, int redirect_flag)
 int buildin_expr(char** args, int argc, expr_type type)
 { /* 用 const 约束 args 是无意义的，这是 C 的语言缺陷 */
   switch (type) {
-  case buildinExit:
+  case buildinExit: {
     exit(EXIT_SUCCESS);
-  case buildinHelp:
+  } break;
+  case buildinHelp: {
     get_help();
-    return success;
-  case buildinEcho:
-    return echo(args, argc);
-  case buildinPwd:
+  } return success;
+  case buildinEcho: {
+  } return echo(args, argc);
+  case buildinPwd: {
     char *temp = get_cwd(NULL);
     puts(temp); release_ptr(temp);
-    return success;
-  case buildinCd:
+  } return success;
+  case buildinCd: {
     if (argc > 2) {
       throw_error("cd", "too many arguments");
       return failed;
     }
-    return change_wd(args[1]);
-  case buildinCls:
-    return clean_up(args, argc);
-  case gotoMoon:
-    return goto_moon();
-  case fiveFives:
-    return five_fives();
+  } return change_wd(args[1]);
+  case buildinCls: {
+  } return clean_up(args, argc);
+  case gotoMoon: {
+  } return goto_moon();
+  case fiveFives: {
+  } return five_fives();
   default:
     break;
   }
@@ -291,16 +292,16 @@ int buildin_expr(char** args, int argc, expr_type type)
 int external_expr(char** args, int argc, expr_type type)
 {
   switch (type) {
-  case externCopy:
-    return copy_file(args, argc);
-  case externMkdir:
-    return make_dir(args, argc);
-  case externTouch:
-    return touch_file(args, argc);
-  case externLook:
-    return look_file(args, argc);
-  case externLs:
-    return list_dir(args, argc);
+  case externCopy: {
+  } return copy_file(args, argc);
+  case externMkdir: {
+  } return make_dir(args, argc);
+  case externTouch: {
+  } return touch_file(args, argc);
+  case externLook: {
+  } return look_file(args, argc);
+  case externLs: {
+  } return list_dir(args, argc);
   case external:
   default:
     return execute(args, argc);
@@ -312,51 +313,53 @@ int external_expr(char** args, int argc, expr_type type)
 expr_type categorize_epxr(char** args, int argc)
 {
   switch (args[0][0]) {
-  case 'e': /* exit */
+  case 'e': { /* exit */
     if (strcmp(args[0], "exit") == 0)
       return buildinExit;
     else if (strcmp(args[0], "echo") == 0)
       return buildinEcho;
-    break;
-  case 'h': /* help */
+  } break;
+  case 'h': { /* help */
     if (strcmp(args[0], "help") == 0)
       return buildinHelp;
-    break;
-  case 'p': /* pwd */
+  } break;
+  case 'p': { /* pwd */
     if (strcmp(args[0], "pwd") == 0)
       return buildinPwd;
-    break;
-  case 'c': /* cd */
+  } break;
+  case 'c': { /* cd */
     if (strcmp(args[0], "cd") == 0)
       return buildinCd;
     else if (strcmp(args[0], "cp") == 0)
       return externCopy;
     else if (strcmp(args[0], "cls") == 0)
       return buildinCls;
-    break;
-  case 'm': /* mkdir */
+  } break;
+  case 'm': { /* mkdir */
     if (strcmp(args[0], "mkdir") == 0)
       return externMkdir;
-    break;
-  case 't': /* touch */
+  } break;
+  case 't': { /* touch */
     if (strcmp(args[0], "touch") == 0)
       return externTouch;
-    break;
+  } break;
   case 'd': /* dir */
-  case 'l': /* ls */
+    // fallthrough
+  case 'l': { /* ls */
     if (strcmp(args[0], "ls") == 0 || strcmp(args[0], "dir") == 0)
       return externLs;
     else if (strcmp(args[0], "look") == 0)
       return externLook;
-    break;
-  case 'g':
+  } break;
+  case 'g': {
     if (argc == 2 && strcmp(args[0], "goto") == 0
         && strcmp(args[1], "moon") == 0)
       return gotoMoon;
-    break;
-  case '5':
+  } break;
+  case '5': {
     if (strcmp(args[0], "55555") == 0)
       return fiveFives;
+  } break;
   default:
     break;
   }
