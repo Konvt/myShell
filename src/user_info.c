@@ -54,11 +54,12 @@ usr_info* make_usr_info(usr_info* const this)
   } while ( blank_char != NULL );
   
   DIR *dir = opendir(this->name);
-  if (dir == NULL && make_dir(&this->name, 1) == failed) {
+  if (dir != NULL)
+    closedir(dir);
+  else if (make_dir(&this->name, 1) == failed) {
     throw_error("login", "create home dir failure");
     return NULL;
   }
-  closedir(dir);
   change_wd(this->name);
 
   return this;
