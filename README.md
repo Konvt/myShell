@@ -1,8 +1,5 @@
-# myShell
-
 **Contents**  
 - [myShell](#myshell)
-- [myShell](#myshell-1)
   - [关于 Makefile](#关于-makefile)
   - [潜在问题](#潜在问题)
 
