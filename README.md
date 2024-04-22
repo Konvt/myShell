@@ -2,6 +2,7 @@
 
 **Contents**  
 - [myShell](#myshell)
+- [myShell](#myshell-1)
   - [关于 Makefile](#关于-makefile)
   - [潜在问题](#潜在问题)
 
@@ -17,6 +18,7 @@ Makefile 里被塞进了几个功能，主要是：
 1. 将中间文件生成在 build 目录中
 2. 目标文件的生成位置与 Makefile 在同一个目录中
 3. 根据源文件的依赖关系，在代码有变动时自动重编译部分文件而不是重编译整个项目
+4. 添加了一个名称为 `debug` 的伪目标，使用 `make debug` 即可使用 `gdb` 开启项目的 tui 调试界面
 
 详细可以去查看 Makefile 源码.
 

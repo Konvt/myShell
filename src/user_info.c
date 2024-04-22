@@ -51,12 +51,13 @@ usr_info* make_usr_info(usr_info* const this)
     blank_char = strpbrk(this->name, " \t\n\v\f\r");
     if (blank_char != NULL)
       throw_error("login", "whitespace characters are not allowed");
-  } while ( blank_char != NULL );
+  } while (blank_char != NULL);
   
   DIR *dir = opendir(this->name);
   if (dir != NULL)
     closedir(dir);
   else if (make_dir(&this->name, 1) == failed) {
+    release_usr(this); // 异常安全保证
     throw_error("login", "create home dir failure");
     return NULL;
   }
