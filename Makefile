@@ -19,11 +19,8 @@ all: $(TARGET)
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
 rebuild: clean all
-debug: $(TARGET)
-	@if [ ! -f $(TARGET) ]; then \
-		$(MAKE) -s all OPT_LEVEL=g; \
-	fi
-	gdb -tui $(TARGET);
+debug:
+	$(MAKE) -s rebuild OPT_LEVEL=g && gdb -q -tui $(TARGET)
 -include $(DEP)
 
 # 生成目标文件
