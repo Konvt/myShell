@@ -175,33 +175,21 @@ int copy_file(char **args, int argc)
 
 int execute(char **args, int argc)
 {
-  int fd[2], status = success;
-  if (pipe(fd) == -1) {
-    throw_error("execute", "cannot create pipe");
-    return failed;
-  }
-  /* function execute may not return, which means there may not be anything in pipe *
-   * so we need to use a non-blocking pipe again */
-  fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL) | O_NONBLOCK);
-
   pid_t pid = fork();
   if (pid < 0) {
-    throw_error("execute", "cannot fork");
+    perror("fork");
+    throw_error( "execute", "cannot fork" );
     return failed;
   }
   if (pid == 0) {
-    close(fd[0]);
-    execvp(args[0], args + 1);
-    /* if failed */
-    int message = failed;
-    write(fd[1], &message, sizeof(int));
+    execvp(args[0], args);
     exit(failed);
   } else {
-    waitpid(pid, NULL, 0);
-    read(fd[0], &status, sizeof(int));
+    int status;
+    if (waitpid(pid, &status, 0) == -1)
+      perror("fork");
+    return WEXITSTATUS(status) == 0 ? success : failed;
   }
-
-  return status;
 }
 
 int clean_up(char **args, int argc)
