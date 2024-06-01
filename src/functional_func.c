@@ -175,19 +175,35 @@ int copy_file(char **args, int argc)
 
 int execute(char **args, int argc)
 {
+  int fd[2];
+  if (pipe(fd) == -1) {
+    throw_error("execute", "cannot create pipe");
+    return failed;
+  }
+  fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL)|O_NONBLOCK);
+
   pid_t pid = fork();
   if (pid < 0) {
     perror("fork");
     throw_error( "execute", "cannot fork" );
     return failed;
-  }
-  if (pid == 0) {
-    execvp(args[0], args);
-    exit(failed);
+  } else if ( pid == 0 ) {
+    close(fd[0]); // 关闭读端
+    execvp( args[0], args );
+    int message = failed;
+    write(fd[1], &message, sizeof(int));
+    exit(EXIT_FAILURE);
   } else {
+    close(fd[1]); // 关闭写端
     int status;
     if (waitpid(pid, &status, 0) == -1)
       perror("fork");
+
+    int message;
+    read(fd[0], &message, sizeof(int));
+    // 如果是查找命令失败导致的 execvp 执行失败，抛出错误信息
+    if (WEXITSTATUS(status) != 0 && message == failed)
+      throw_error(args[0], "command error or not found");
     return WEXITSTATUS(status) == 0 ? success : failed;
   }
 }

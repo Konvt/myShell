@@ -68,7 +68,7 @@ void interprete_epxr(shell_rt* const this)
   this->prev_exprT = nil;
   if (this->args[0] == NULL || this->args[0][0] == NIL_CHAR)
     return; // if command is a line of space
-  int execute_flag = failed, pipe_flag = -1, redirect_flag = -1;
+  int pipe_flag = -1, redirect_flag = -1;
 
   for (int i = 0; i < this->argc; i++) {
     if (strcmp(this->args[i], "|") == 0)
@@ -83,15 +83,15 @@ void interprete_epxr(shell_rt* const this)
   }
 
   if (pipe_flag != -1) {
-    execute_flag = execute_pipe(this->args, this->argc, pipe_flag);
+    execute_pipe(this->args, this->argc, pipe_flag);
   } else if (redirect_flag != -1) {
-    execute_flag = execute_redirect(this->args, this->argc, redirect_flag);
+    execute_redirect(this->args, this->argc, redirect_flag);
   } else {
     this->prev_exprT = categorize_epxr(this->args, this->argc);
     if (this->prev_exprT > buildin)
-      execute_flag = buildin_expr(this->args, this->argc, this->prev_exprT);
+      buildin_expr(this->args, this->argc, this->prev_exprT);
     else if (this->prev_exprT < buildin)
-      execute_flag = external_expr(this->args, this->argc, this->prev_exprT);
+      external_expr(this->args, this->argc, this->prev_exprT);
   }
 
   if (this->prev_exprT == buildinCd) {
@@ -104,11 +104,6 @@ void interprete_epxr(shell_rt* const this)
       // 所以只能执行 exit 强行终止进程
     }
   }
-
-  // 除了 error_code::external 以外的指令处理都有自己的报错信息
-  // 所以这里要特殊处理
-  if (execute_flag == failed && this->prev_exprT == external)
-    throw_error(this->_origianl_expr, "command error or not found");
 }
 
 shell_rt* read_expr(shell_rt* const this, FILE* infile, const char* prompt)
