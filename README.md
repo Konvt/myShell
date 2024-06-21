@@ -1,10 +1,7 @@
-**Contents**  
-- [myShell](#myshell)
-  - [关于 Makefile](#关于-makefile)
-  - [潜在问题](#潜在问题)
-
 # myShell
 一个简易的 shell 程序，复现了 bash 中的几条简单指令. 由 C 编写，且没有使用第三方库，linux 下的系统 C 库除外.
+
+> [这](https://github.com/Konvt/simsh)是一个更强大的 `myShell`，如果你希望有完整的语法解析和解释执行功能，不妨去看看.
 
 编译好程序并运行后，输入 `help` 指令会显示这个 shell 中的所有功能指令.
 
